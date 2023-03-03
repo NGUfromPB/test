@@ -29,6 +29,13 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("Успешно: создание таблицы");
         } catch (HibernateException e) {
             System.out.println("HiberEx " + e);
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
@@ -41,6 +48,13 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("Успешно: таблица дропнута");
         } catch (HibernateException e) {
             System.out.println("HiberEx " +e );
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
@@ -54,46 +68,82 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("Успешно: User "+name+" have been added");
         } catch (HibernateException e) {
             System.out.println("HiberEx " +e );
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        try (Session session = sessionFactory.openSession()) {
+        Session session = sessionFactory.openSession()
+        try {
             Transaction transaction = session.beginTransaction();
             session.delete(session.get(User.class, id));
             transaction.commit();
             System.out.println("Успешно: user дропнут");
         } catch (HibernateException e) {
             System.out.println("HiberEx " +e );
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
     @Override
     public List<User> getAllUsers() {
         List <User> ul = null;
-        try (Session session = sessionFactory.openSession()) {
-            CriteriaQuery<User> criteriaQuery = session.getCriteriaBuilder().createQuery(User.class);
-            criteriaQuery.from(User.class);
-            Transaction transaction = session.beginTransaction();
-            ul =session.createQuery(criteriaQuery).getResultList();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            ul = session.createCriteria(User.class).list();
+            transaction = session.beginTransaction();
             transaction.commit();
             return ul;
         } catch (HibernateException e) {
             System.out.println("HiberEx " +e );
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
         return ul;
     }
 
     @Override
     public void cleanUsersTable() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createNativeQuery("DELETE USERS");
-            transaction.commit();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            final List<User> instances = session.createCriteria(User.class).list();
+
+            for (Object o : instances) {
+                session.delete(o);
+            }
+
+            session.getTransaction().commit();
             System.out.println("Успешно: таблица очищена");
-        } catch (HibernateException e) {
+        } catch (Exception e) {
             System.out.println("HiberEx " +e );
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 }
