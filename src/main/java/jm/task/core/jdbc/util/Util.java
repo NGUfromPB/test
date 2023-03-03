@@ -21,7 +21,8 @@ public class Util {
                     .setProperty("hibernate.connection.url", URL)
                     .setProperty("hibernate.connection.username", U)
                     .setProperty("hibernate.connection.password", P)
-                    .setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+                    .setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect")
+                    .addAnnotatedClass(User.class);
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();
@@ -30,5 +31,9 @@ public class Util {
             System.out.println("hiberEx " + e);
         }
         return sessionFactory;
+    }
+    public static void closeConnection() {
+        if (sessionFactory != null)
+            sessionFactory.close();
     }
 }
