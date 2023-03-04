@@ -1,4 +1,5 @@
 package jm.task.core.jdbc.util;
+import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -10,7 +11,7 @@ public class Util {
     private static final String driver = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/kattes";
     private static final String U = "root";
-    private static final String P = "1234";
+    private static final String P = "root";
 
     private static SessionFactory sessionFactory=null;
 
