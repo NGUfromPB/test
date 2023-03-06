@@ -103,14 +103,8 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            CriteriaQuery<User> criteriaQuery = session.getCriteriaBuilder().createQuery(User.class);
-            criteriaQuery.from(User.class);
-            List<User> instances = session.createQuery(criteriaQuery).getResultList();
-
-            for (Object o : instances) {
-                session.delete(o);
-            }
-
+            User user = new User();
+            session.createNativeQuery("delete from USERS;").executeUpdate();
             session.getTransaction().commit();
             System.out.println("Успешно: таблица очищена");
         } catch (Exception e) {
