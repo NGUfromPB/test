@@ -41,7 +41,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.createNativeQuery("DROP TABLE IF EXISTS USERS");
+            session.createNativeQuery("DROP TABLE IF EXISTS USERS").executeUpdate();
             transaction.commit();
             System.out.println("Успешно: таблица дропнута");
         } catch (HibernateException e) {
@@ -57,7 +57,11 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.save(new User(name, lastName,age));
+            User user = new User();
+            user.setName(name);
+            user.setLastName(lastName);
+            user.setAge(age);
+            session.merge(user);
 
             transaction.commit();
             System.out.println("Успешно: User "+name+" have been added");
@@ -74,7 +78,8 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()){
             transaction = session.beginTransaction();
-            session.delete(session.get(User.class, id));
+            User user = (User) session.getReference(User.class, id);
+            session.remove(user);
             transaction.commit();
             System.out.println("Успешно: user дропнут");
         } catch (HibernateException e) {
